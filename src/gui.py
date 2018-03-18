@@ -4,7 +4,7 @@ import numpy as np
 
 times = []
 print_drawing_time = False
-
+display_target = False
 
 def display_screen(screen, gui_clock):
     pygame.display.update()
@@ -23,9 +23,11 @@ def draw_image(image, screen):
     pixels = image.pixels
     target_pixels = image.compared_picture
     screen.fill((255, 255, 255))    # BACKGROUND
-    # displaying the target
-    # surf = pygame.surfarray.make_surface(np.array(target_pixels)+10)
-    # screen.blit(surf, (0, 0))
+
+    if display_target:
+        surf = pygame.surfarray.make_surface(np.array(target_pixels)+10)
+        screen.blit(surf, (0, 0))
+
     for x in range(image.width):
         for y in range(image.height):
             value = int(pixels[x, y])

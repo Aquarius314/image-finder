@@ -20,36 +20,37 @@ def run(screen, clock, alg):
     print("IT'S ON")
 
     running = True
-    while running: # main loop
+    disrupted = False
+    while running and not disrupted:  # main loop
         running = alg.calculate()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                disrupted = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    running = False
+                    disrupted = True
 
         if alg.has_best_fitness():
             alg.display_best_fitness()
             pygame.display.set_caption("img" + str(alg.number_of_imgs) + \
                                        " ft" + str(alg.percentage) + \
                                        "% it" + str(alg.iterations))
-        gui.display_screen(screen, clock)
-        gui.draw_image(alg.get_best_image(), screen)
+            gui.display_screen(screen, clock)
+            gui.draw_image(alg.get_best_image(), screen)
         alg.populate_best_images()
         alg.crossover()
-
+    return disrupted
 
 pygame.init()
 
 _clock = pygame.time.Clock()
 _screen = pygame.display.set_mode((width, height))
 algorithm = Algorithm(width, height)
-run(_screen, _clock, algorithm)
+disr = run(_screen, _clock, algorithm)
 pygame.display.set_caption(str(algorithm.percentage) + "% with "
                            + str(algorithm.number_of_imgs) + " after " + str(algorithm.iterations) + " its")
-
 print("FINISHED")
-time.sleep(100000000)
+if not disr:
+    time.sleep(100000000)
 pygame.quit()
 

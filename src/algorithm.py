@@ -8,19 +8,21 @@ import math
 class Algorithm:
 
     best_fitness = -1000000.0
-    number_of_imgs = 60
+    number_of_imgs = 4
     max_iterations = 10000
+    number_of_rects = 1000
     percentage = 0.00
     target_percentage = 98.00
 
     images = []
-    best_image = None
+    # best_image = None
 
     def __init__(self, width, height):
-        self.number_of_rects = int((width+height)/5)
+        # self.number_of_rects = int((width+height)/5)
         self.max_fitness = width*height
         self.start_time = time.time()
         self.init_images(width, height)
+        self.best_image = self.images[0]
         self.iterations = 0
 
     def init_images(self, width, height):
@@ -44,7 +46,7 @@ class Algorithm:
         # calculations here
 
         # self.refresh_images()
-        self.shake_images()
+        self.shake_images() # ***
         # self.best_fitness = self.get_best_fitness()
         return True
 
@@ -84,16 +86,33 @@ class Algorithm:
     def get_best_image(self):
         return self.best_image
 
+    def get_first_image(self):
+        return self.images[0]
+
     def populate_best_images(self):
         # sort by fitness desc
         self.images.sort(key=lambda x: x.get_fitness(), reverse=True)
-        # rewrite the worst half
-        for i in range(int(len(self.images)/2)):
-            img = self.images[i]
-            self.images[-i-1].overwrite_with(img)
-            if i != 0:  # don't shake the best one
-                self.images[i].mutate()
-            self.images[-i-1].mutate()
+
+        copy_quarter = True
+
+        if not copy_quarter:
+            for i in range(int(len(self.images)/2)):
+                img = self.images[i]
+                self.images[-i-1].overwrite_with(img)
+                if i != 0:  # don't shake the best one
+                    self.images[i].mutate()
+                self.images[-i-1].mutate()
+
+        if copy_quarter:
+            quarter = int(len(self.images)/4)
+            for i in range(quarter):
+                img = self.images[i]
+                self.images[i+1*quarter].overwrite_with(img)
+                self.images[i+2*quarter].overwrite_with(img)
+                self.images[i+3*quarter].overwrite_with(img)
+                if i != 0:  # don't shake the best one
+                    self.images[i].mutate()
+                self.images[-i-1].mutate()
 
     def crossover(self):
         min_num_of_rects = 100000
@@ -101,7 +120,7 @@ class Algorithm:
             num_of_rects = len(img.rects)
             if num_of_rects < min_num_of_rects:
                 min_num_of_rects = num_of_rects
-        mutations = random.randint(int(self.number_of_rects) - 5, int(self.number_of_rects) + 5)
+        mutations = random.randint(int(self.number_of_rects/5) - 5, int(self.number_of_rects/5) + 5)
         for m in range(mutations):
             index = random.randint(0, min_num_of_rects - 1)
             rect1 = self.images[0].rects[index]
