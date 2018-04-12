@@ -4,8 +4,8 @@ from algorithm import Algorithm
 import time
 
 
-width = 600
-height = 600
+width = 400
+height = 400
 # 1:    23686, t 153719
 # 2:    24597, t 393758 <--
 # 5:    21115, t 948539

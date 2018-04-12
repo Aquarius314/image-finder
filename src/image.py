@@ -5,8 +5,8 @@ import pygame
 
 
 class Rect:
-    min_size = 3
-    max_size = 10
+    min_size = 2
+    max_size = 16
     initial_max_size = 20
 
     def __init__(self, x, y, width, height):
@@ -21,7 +21,7 @@ class Rect:
         self.color = 1
 
     def shake_in_image(self, img_width, img_height):
-        if random.randint(0, 10) % 2 == 0:
+        if random.randint(1, 2) == 2:
             return
         lshake = 0  # left, right, up, down shakes
         rshake = 0
@@ -32,23 +32,24 @@ class Rect:
         sheight = 0
         bheight = 0
 
-        # if self.min_size < self.width:
-        #     swidth = self.min_size-1
-        # if self.width < self.max_size:
-        #     bwidth = self.min_size-1
-        # if self.min_size < self.height:
-        #     sheight = self.min_size-1
-        # if self.height < self.max_size:
-        #     bheight = self.min_size-1
-        #
-        # if swidth != 0 or bwidth != 0:
-        #     self.width += random.randint(-swidth, bwidth)
-        # if sheight != 0 or bheight != 0:
-        #     self.height += random.randint(-sheight, bheight)
+        # usually a little better when skipping this
+        if self.min_size < self.width:
+            swidth = self.min_size-1
+        if self.width < self.max_size:
+            bwidth = self.min_size-1
+        if self.min_size < self.height:
+            sheight = self.min_size-1
+        if self.height < self.max_size:
+            bheight = self.min_size-1
+
+        if swidth != 0 or bwidth != 0:
+            self.width += random.randint(-swidth, bwidth)
+        if sheight != 0 or bheight != 0:
+            self.height += random.randint(-sheight, bheight)
         # if self.is_oval:
         #     self.width = self.height
 
-        variation = 2
+        variation = 4
         if self.x > variation:
             lshake = variation
         if self.x + self.width < img_width - variation:
@@ -67,6 +68,7 @@ class Rect:
 class Image:
 
     image_loaded = False
+    calculated_fitness = 0
 
     def __init__(self, width, height):
         self.width = width
@@ -86,7 +88,7 @@ class Image:
         self.compared_picture = np.zeros((self.width, self.height))
 
         loaded_image = pygame.surfarray.array2d(self.image_from_disk)
-        self.compared_picture = np.where(loaded_image == 0, 1, 0)
+        self.compared_picture = np.where(loaded_image == -1, 0, 1)
 
     def draw_smooth_heart(self):
         u = self.width/6
@@ -152,7 +154,7 @@ class Image:
         for rect in img.rects:
             rect2 = Rect(int(rect.x), int(rect.y), int(rect.width), int(rect.height))
             self.rects.append(rect2)
-        self.refresh()
+        # self.refresh()
 
     def put_random_rects(self, num):
         self.rects.clear()
@@ -165,11 +167,12 @@ class Image:
         if rect.is_oval:
             self.draw_oval(rect)
             return
-        for i in range(1, rect.width):
-            for j in range(1, rect.height):
-                if 0 <= rect.x + i < self.width \
-                        and 0 <= rect.y + j < self.height:
-                    self.pixels[rect.x + i, rect.y + j] = rect.color
+        col = rect.color
+        x1 = rect.x
+        x2 = rect.x + rect.width
+        y1 = rect.y
+        y2 = rect.y + rect.height
+        self.pixels[y1:y2, x1:x2] = col
 
     def draw_oval(self, rect):
         ox = rect.width/2 + rect.x
@@ -182,17 +185,17 @@ class Image:
 
     def mutate(self):
         # remove some rects
-        remove = random.randint(5, 15)
+        remove = random.randint(1, 10)
         for i in range(min(remove, len(self.rects))):
             self.rects.remove(self.rects[-i-1])
 
         # shake existing rects
         for rect in self.rects:
             rect.shake_in_image(self.width, self.height)
-        random.shuffle(self.rects)
+        # random.shuffle(self.rects)
 
         # add some rects
-        add = random.randint(5, 15)
+        add = random.randint(1, 10)
         for i in range(add):
             self.rects.append(self.get_rand_rect())
         self.refresh()
@@ -250,3 +253,4 @@ class Image:
         # return self.get_darkness()
         # return self.get_fit_in_circle()
         return self.compare_to()
+        # return self.calculated_fitness

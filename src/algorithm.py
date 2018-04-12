@@ -8,11 +8,13 @@ import math
 class Algorithm:
 
     best_fitness = -1000000.0
-    number_of_imgs = 4
+    number_of_imgs = 40
     max_iterations = 10000
-    number_of_rects = 1000
+    number_of_rects = 100
     percentage = 0.00
     target_percentage = 98.00
+
+    last_iteration_time = time.time()
 
     images = []
     # best_image = None
@@ -33,7 +35,11 @@ class Algorithm:
 
     def calculate(self):
         self.iterations += 1
-        self.percentage = math.ceil((int(self.best_fitness)/int(self.max_fitness)*100)*100)/100
+        new_percentage = math.ceil((int(self.best_fitness)/int(self.max_fitness)*100)*100)/100
+        percentage_difference = new_percentage - self.percentage
+        self.percentage = new_percentage
+        time_difference = time.time() - self.last_iteration_time
+        self.last_iteration_time = time.time()
         if self.iterations%10 is 0 or self.percentage >= self.target_percentage:
             print("Iterations:", self.iterations)
             pygame.display.set_caption("img" + str(self.number_of_imgs) +
@@ -43,10 +49,10 @@ class Algorithm:
                 print("Finished after time:", int(time.time()*1000-self.start_time*1000))
                 print("The final fitness was:", str(int(self.best_fitness)))
                 return False
-        # calculations here
-
+            print("Time for 1 iteration: %.2f s after %.2f s, prct improvement: %.2f"
+                  % (time_difference, (time.time()-self.start_time), percentage_difference))
         # self.refresh_images()
-        self.shake_images() # ***
+        self.shake_images()  # ***
         # self.best_fitness = self.get_best_fitness()
         return True
 
@@ -95,14 +101,6 @@ class Algorithm:
 
         copy_quarter = True
 
-        if not copy_quarter:
-            for i in range(int(len(self.images)/2)):
-                img = self.images[i]
-                self.images[-i-1].overwrite_with(img)
-                if i != 0:  # don't shake the best one
-                    self.images[i].mutate()
-                self.images[-i-1].mutate()
-
         if copy_quarter:
             quarter = int(len(self.images)/4)
             for i in range(quarter):
@@ -110,9 +108,13 @@ class Algorithm:
                 self.images[i+1*quarter].overwrite_with(img)
                 self.images[i+2*quarter].overwrite_with(img)
                 self.images[i+3*quarter].overwrite_with(img)
-                if i != 0:  # don't shake the best one
-                    self.images[i].mutate()
-                self.images[-i-1].mutate()
+        else:   # copy only half
+            for i in range(int(len(self.images)/2)):
+                img = self.images[i]
+                self.images[-i-1].overwrite_with(img)
+
+        for i in range(1, len(self.images)):
+            self.images[i].mutate()
 
     def crossover(self):
         min_num_of_rects = 100000

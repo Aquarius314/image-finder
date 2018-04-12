@@ -5,6 +5,8 @@ import numpy as np
 times = []
 print_drawing_time = False
 display_target = False
+displays = 0
+
 
 def display_screen(screen, gui_clock):
     pygame.display.update()
