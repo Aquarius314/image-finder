@@ -7,12 +7,12 @@ import math
 
 class Algorithm:
 
-    best_fitness = -1000000.0
-    number_of_imgs = 40
+    best_fitness = -1000000000.0
+    number_of_imgs = 20
     max_iterations = 10000
-    number_of_rects = 100
+    number_of_rects = 500
     percentage = 0.00
-    target_percentage = 98.00
+    target_percentage = 990.00
 
     last_iteration_time = time.time()
 
@@ -21,7 +21,7 @@ class Algorithm:
 
     def __init__(self, width, height):
         # self.number_of_rects = int((width+height)/5)
-        self.max_fitness = width*height
+        self.max_fitness = width*height*255
         self.start_time = time.time()
         self.init_images(width, height)
         self.best_image = self.images[0]
@@ -40,8 +40,7 @@ class Algorithm:
         self.percentage = new_percentage
         time_difference = time.time() - self.last_iteration_time
         self.last_iteration_time = time.time()
-        if self.iterations%10 is 0 or self.percentage >= self.target_percentage:
-            print("Iterations:", self.iterations)
+        if self.iterations % 100 is 0 or self.percentage >= self.target_percentage:
             pygame.display.set_caption("img" + str(self.number_of_imgs) +
                                        " ft" + str(self.percentage) +
                                        "% it" + str(self.iterations))
@@ -49,8 +48,8 @@ class Algorithm:
                 print("Finished after time:", int(time.time()*1000-self.start_time*1000))
                 print("The final fitness was:", str(int(self.best_fitness)))
                 return False
-            print("Time for 1 iteration: %.2f s after %.2f s, prct improvement: %.2f"
-                  % (time_difference, (time.time()-self.start_time), percentage_difference))
+            print("Iters: %d, time for 1 iteration: %.2f s after %.2f s"
+                  % (self.iterations, time_difference, (time.time()-self.start_time)))
         # self.refresh_images()
         self.shake_images()  # ***
         # self.best_fitness = self.get_best_fitness()
@@ -99,7 +98,7 @@ class Algorithm:
         # sort by fitness desc
         self.images.sort(key=lambda x: x.get_fitness(), reverse=True)
 
-        copy_quarter = True
+        copy_quarter = False
 
         if copy_quarter:
             quarter = int(len(self.images)/4)

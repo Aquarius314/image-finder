@@ -8,19 +8,22 @@ display_target = False
 displays = 0
 
 
-def display_screen(screen, gui_clock):
+def display(screen, image, scale):
+    display_screen(screen, scale)
+    draw_image(screen, image, scale)
+
+
+def display_screen(screen, scale):
     pygame.display.update()
     # gui_clock.tick(200) # remove this line to boost calculating
     screen.fill((255, 255, 255))    # BACKGROUND
-    # actual drawables below
-    # rect(50, 50, 50, 50, (255, 0, 0), screen)
 
 
 def rect(x, y, width, height, color, screen):
     pygame.draw.rect(screen, color, pygame.Rect(x, y, width, height))
 
 
-def draw_image(image, screen):
+def draw_image(screen, image, scale):
         # 0 - white, 1 - black
     pixels = image.pixels
     target_pixels = image.compared_picture
@@ -33,5 +36,11 @@ def draw_image(image, screen):
     for x in range(image.width):
         for y in range(image.height):
             value = int(pixels[x, y])
-            if value != 0:
-                screen.set_at((x, y), (value, value, value))
+            if value <= 255:
+                for i in range(scale):
+                    for j in range(scale):
+                        screen.set_at((scale*x+i, scale*y+j), (value, value, value))
+            else:
+                for i in range(scale):
+                    for j in range(scale):
+                        screen.set_at((scale*x+i, scale*y+j), (255, 255, 255))

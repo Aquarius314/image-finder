@@ -5,8 +5,8 @@ import pygame
 
 
 class Rect:
-    min_size = 2
-    max_size = 16
+    min_size = 5
+    max_size = 20
     initial_max_size = 20
 
     def __init__(self, x, y, width, height):
@@ -21,7 +21,7 @@ class Rect:
         self.color = 1
 
     def shake_in_image(self, img_width, img_height):
-        if random.randint(1, 2) == 2:
+        if random.randint(1, 4) != 1:
             return
         lshake = 0  # left, right, up, down shakes
         rshake = 0
@@ -69,13 +69,15 @@ class Image:
 
     image_loaded = False
     calculated_fitness = 0
+    total_sum = 0
 
     def __init__(self, width, height):
         self.width = width
         self.height = height
+        self.total_sum = self.width*self.height*255
         if not self.image_loaded:
             self.image_loaded = True
-            self.image_from_disk = pygame.image.load('assets/morda.png')
+            self.image_from_disk = pygame.image.load('assets/dot.png')
             # for p in pygame.surfarray.array2d(self.image_from_disk):
             #     print(p)
         self.pixels = []
@@ -87,8 +89,15 @@ class Image:
     def prepare_picture(self):
         self.compared_picture = np.zeros((self.width, self.height))
 
-        loaded_image = pygame.surfarray.array2d(self.image_from_disk)
-        self.compared_picture = np.where(loaded_image == -1, 0, 1)
+        loaded_image = pygame.surfarray.pixels_red(self.image_from_disk)
+        values = []
+        for i in range(len(loaded_image)):
+            for j in range(len(loaded_image[0])):
+                col = loaded_image[i, j]
+                self.compared_picture[i, j] = col
+                if col not in values:
+                    values.append(col)
+        print(values)
 
     def draw_smooth_heart(self):
         u = self.width/6
@@ -158,6 +167,7 @@ class Image:
 
     def put_random_rects(self, num):
         self.rects.clear()
+        self.pixels = np.zeros((self.width, self.height))
         for i in range(num):
             rect = self.get_rand_rect()
             self.rects.append(rect)
@@ -172,7 +182,7 @@ class Image:
         x2 = rect.x + rect.width
         y1 = rect.y
         y2 = rect.y + rect.height
-        self.pixels[y1:y2, x1:x2] = col
+        self.pixels[y1:y2, x1:x2] += 10
 
     def draw_oval(self, rect):
         ox = rect.width/2 + rect.x
@@ -185,17 +195,20 @@ class Image:
 
     def mutate(self):
         # remove some rects
-        remove = random.randint(1, 10)
+        remove = random.randint(1, 6)
         for i in range(min(remove, len(self.rects))):
-            self.rects.remove(self.rects[-i-1])
+            if len(self.rects) > 2:
+                self.rects.remove(self.rects[-i-1])
+            else:
+                break
 
         # shake existing rects
         for rect in self.rects:
             rect.shake_in_image(self.width, self.height)
-        # random.shuffle(self.rects)
+        random.shuffle(self.rects)
 
         # add some rects
-        add = random.randint(1, 10)
+        add = random.randint(1, 6)
         for i in range(add):
             self.rects.append(self.get_rand_rect())
         self.refresh()
@@ -246,7 +259,7 @@ class Image:
         return fitness
 
     def compare_to(self):
-        return self.width*self.height - np.sum(np.absolute(self.compared_picture-self.pixels))
+        return self.total_sum - np.sum(np.absolute(self.compared_picture - self.pixels))
 
     def get_fitness(self):
         # return self.get_pixels_below()
