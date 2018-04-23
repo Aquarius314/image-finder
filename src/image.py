@@ -5,23 +5,25 @@ import pygame
 
 
 class Rect:
-    min_size = 5
-    max_size = 20
+    min_size = 2
+    max_size = 10
+    min_color = -10
+    max_color = 20
     initial_max_size = 20
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, color):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.color = color
         # self.is_oval = True
         self.is_oval = False
         # self.is_oval = (random.randint(0, 10) % 2 == 0)
         # self.color = random.randint(0, 255)
-        self.color = 1
 
-    def shake_in_image(self, img_width, img_height):
-        if random.randint(1, 4) != 1:
+    def modify(self, img_width, img_height):
+        if random.randint(1, 2) != 1:
             return
         lshake = 0  # left, right, up, down shakes
         rshake = 0
@@ -31,6 +33,11 @@ class Rect:
         bwidth = 0
         sheight = 0
         bheight = 0
+
+        # mess with the color
+        self.color += random.randint(-2, 2)
+        self.color = max(self.min_color, self.color)
+        self.color = min(self.max_color, self.color)
 
         # usually a little better when skipping this
         if self.min_size < self.width:
@@ -49,7 +56,7 @@ class Rect:
         # if self.is_oval:
         #     self.width = self.height
 
-        variation = 4
+        variation = 3
         if self.x > variation:
             lshake = variation
         if self.x + self.width < img_width - variation:
@@ -70,6 +77,7 @@ class Image:
     image_loaded = False
     calculated_fitness = 0
     total_sum = 0
+    FILE_NAME = 'assets/smile100.png'
 
     def __init__(self, width, height):
         self.width = width
@@ -77,9 +85,7 @@ class Image:
         self.total_sum = self.width*self.height*255
         if not self.image_loaded:
             self.image_loaded = True
-            self.image_from_disk = pygame.image.load('assets/dot.png')
-            # for p in pygame.surfarray.array2d(self.image_from_disk):
-            #     print(p)
+            self.image_from_disk = pygame.image.load(self.FILE_NAME)
         self.pixels = []
         self.rects = []
         self.compared_picture = []
@@ -87,17 +93,20 @@ class Image:
         self.prepare_picture()
 
     def prepare_picture(self):
-        self.compared_picture = np.zeros((self.width, self.height))
-
-        loaded_image = pygame.surfarray.pixels_red(self.image_from_disk)
+        self.compared_picture = pygame.surfarray.pixels_red(self.image_from_disk)
+        # loaded_image =
+        # self.compared_picture = loaded_image[:, :]
+        self.compared_picture = np.clip(self.compared_picture, 0, 255)
         values = []
-        for i in range(len(loaded_image)):
-            for j in range(len(loaded_image[0])):
-                col = loaded_image[i, j]
-                self.compared_picture[i, j] = col
-                if col not in values:
-                    values.append(col)
-        print(values)
+        # for i in range(len(self.compared_picture)):
+        #     for j in range(len(self.compared_picture[0])):
+        #         if self.compared_picture[i, j] not in values:
+        #             values.append(self.compared_picture[i, j])
+        # print(values)
+        # for i in range(len(loaded_image)):
+        #     for j in range(len(loaded_image[0])):
+        #         col = loaded_image[i, j]
+        #         self.compared_picture[i, j] = col
 
     def draw_smooth_heart(self):
         u = self.width/6
@@ -161,7 +170,7 @@ class Image:
     def overwrite_with(self, img):
         self.rects.clear()
         for rect in img.rects:
-            rect2 = Rect(int(rect.x), int(rect.y), int(rect.width), int(rect.height))
+            rect2 = Rect(int(rect.x), int(rect.y), int(rect.width), int(rect.height), int(rect.color))
             self.rects.append(rect2)
         # self.refresh()
 
@@ -172,6 +181,7 @@ class Image:
             rect = self.get_rand_rect()
             self.rects.append(rect)
             self.draw_rect(rect)
+        self.pixels = np.clip(self.pixels, 0, 255)
 
     def draw_rect(self, rect):
         if rect.is_oval:
@@ -182,7 +192,7 @@ class Image:
         x2 = rect.x + rect.width
         y1 = rect.y
         y2 = rect.y + rect.height
-        self.pixels[y1:y2, x1:x2] += 10
+        self.pixels[y1:y2, x1:x2] += col
 
     def draw_oval(self, rect):
         ox = rect.width/2 + rect.x
@@ -193,37 +203,58 @@ class Image:
                 if self.distance(i, j, ox, oy) <= r:
                     self.pixels[i, j] = 1
 
-    def mutate(self):
-        # remove some rects
-        remove = random.randint(1, 6)
+    def remove_rects(self, quantity):
+        removed = 0
+        remove = random.randint(quantity, quantity+2)
         for i in range(min(remove, len(self.rects))):
-            if len(self.rects) > 2:
-                self.rects.remove(self.rects[-i-1])
+            index = -1
+            if index >= 0:
+                removed += 1
+                self.rects.remove(self.rects[index])
             else:
                 break
+        return removed
 
-        # shake existing rects
-        for rect in self.rects:
-            rect.shake_in_image(self.width, self.height)
-        random.shuffle(self.rects)
-
-        # add some rects
-        add = random.randint(1, 6)
+    def add_rects(self, quantity):
+        add = random.randint(quantity, quantity+1)
         for i in range(add):
             self.rects.append(self.get_rand_rect())
+
+    def mutate(self):
+        # find optimal value of rects to add and remove
+        # quantity = max(5, int(len(self.rects)/500))
+        quantity = max(20, int(len(self.rects)/50))  # more randomness
+
+        # remove some rects
+        removed_rects = self.remove_rects(quantity)
+
+        # modify existing rects (move and resize a bit)
+        for rect in self.rects:
+            rect.modify(self.width, self.height)
+
+        # add some rects
+        self.add_rects(removed_rects)
+
+        # change order of rects in list
+        random.shuffle(self.rects)
+
+        # generate image and refresh parameters
         self.refresh()
 
     def get_rand_rect(self):
-            width = random.randint(Rect.min_size, Rect.max_size)
-            height = random.randint(Rect.min_size, Rect.max_size)
-            x = random.randint(5, self.width - width - 5)
-            y = random.randint(5, self.height - height - 5)
-            return Rect(x, y, width, height)
+        computed_max_size = int(random.randint(1, 4)*(Rect.max_size/4))
+        width = random.randint(Rect.min_size, computed_max_size)
+        height = random.randint(Rect.min_size, computed_max_size)
+        x = random.randint(5, self.width - width - 5)
+        y = random.randint(5, self.height - height - 5)
+        color = random.randint(Rect.min_color, Rect.max_color)
+        return Rect(x, y, width, height, color)
 
     def refresh(self):
         self.pixels = np.zeros((self.width, self.height))
         for rect in self.rects:
             self.draw_rect(rect)
+        self.pixels = np.clip(self.pixels, 0, 255)
 
     def get_darkness(self): # just the coverage of image
         return self.pixels.sum()
@@ -258,12 +289,5 @@ class Image:
                 fitness -= int((x - self.height/2)/10)*self.pixels[x, y]
         return fitness
 
-    def compare_to(self):
-        return self.total_sum - np.sum(np.absolute(self.compared_picture - self.pixels))
-
     def get_fitness(self):
-        # return self.get_pixels_below()
-        # return self.get_darkness()
-        # return self.get_fit_in_circle()
-        return self.compare_to()
-        # return self.calculated_fitness
+        return self.total_sum - np.sum(np.absolute(self.compared_picture - self.pixels))

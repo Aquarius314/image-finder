@@ -7,12 +7,22 @@ import math
 
 class Algorithm:
 
+    # dobre rezultaty były, potem zmieniłem na noc:
+    # 2/3 mutacji pomijana (zamiast 1/2)
+    # variation z 4 na 2
+    # obrazki z 400 na 600
+    # poprawił się wynik pod względem szybkości (gradientu)
+    # oby wreszcie pojawiła się stabilność!
+    # 94,17 :)
+
     best_fitness = -1000000000.0
-    number_of_imgs = 20
-    max_iterations = 10000
-    number_of_rects = 500
+    new_best_fitness = False
+    current_fitness = -100000000.0
+    number_of_imgs = 40
+    max_iterations = 1000000
+    number_of_rects = 300
     percentage = 0.00
-    target_percentage = 990.00
+    target_percentage = 99.90
 
     last_iteration_time = time.time()
 
@@ -35,9 +45,7 @@ class Algorithm:
 
     def calculate(self):
         self.iterations += 1
-        new_percentage = math.ceil((int(self.best_fitness)/int(self.max_fitness)*100)*100)/100
-        percentage_difference = new_percentage - self.percentage
-        self.percentage = new_percentage
+        self.percentage = math.ceil((int(self.current_fitness)/int(self.max_fitness)*100)*100)/100
         time_difference = time.time() - self.last_iteration_time
         self.last_iteration_time = time.time()
         if self.iterations % 100 is 0 or self.percentage >= self.target_percentage:
@@ -50,9 +58,12 @@ class Algorithm:
                 return False
             print("Iters: %d, time for 1 iteration: %.2f s after %.2f s"
                   % (self.iterations, time_difference, (time.time()-self.start_time)))
-        # self.refresh_images()
-        self.shake_images()  # ***
-        # self.best_fitness = self.get_best_fitness()
+            rects_sum = 0
+            for img in self.images:
+                rects_sum += len(img.rects)
+            print("Average number of rects:", str(int(rects_sum/len(self.images))))
+
+
         return True
 
     def shake_images(self):
@@ -63,22 +74,21 @@ class Algorithm:
         for img in self.images:
             img.refresh()
 
-    def get_fitness(self, img):
-        return img.get_fitness()
-
     def get_best_fitness(self):
-        best_of_all = -1000000.0
+        best_of_all = -10000000.0
         for img in self.images:
-            fitness = self.get_fitness(img)
+            fitness = img.get_fitness()
             if fitness > best_of_all:
                 best_of_all = fitness
                 self.best_image = img
 
+        self.current_fitness = best_of_all
         return best_of_all
 
-    def display_best_fitness(self):
-        print("Best fitness so far:", self.percentage, "% after iters:",
-              self.iterations, "images:", self.number_of_imgs, "rects:", len(self.best_image.rects))
+    def display_best_fitness(self, disp):
+        print("Fitness so far:", self.percentage, "% after iters:",
+              self.iterations, "images:", self.number_of_imgs, "rects:", len(self.best_image.rects),
+                    " successful iterations:", disp)
 
     def has_best_fitness(self):
         fitness = self.get_best_fitness()
@@ -112,19 +122,32 @@ class Algorithm:
                 img = self.images[i]
                 self.images[-i-1].overwrite_with(img)
 
+        return self.images[0]
+
+    def mutate(self):
         for i in range(1, len(self.images)):
             self.images[i].mutate()
 
+    def recover_best_image(self, img):
+        # save best image in place of worst image
+        self.images[-1] = img
+        self.images[-1].refresh()
+
     def crossover(self):
-        min_num_of_rects = 100000
+        min_num_of_rects = len(self.images[0].rects)
         for img in self.images:
             num_of_rects = len(img.rects)
             if num_of_rects < min_num_of_rects:
                 min_num_of_rects = num_of_rects
-        mutations = random.randint(int(self.number_of_rects/5) - 5, int(self.number_of_rects/5) + 5)
+        mutations = random.randint(int(self.number_of_rects/6), int(self.number_of_rects/5))
+
+        image4 = self.images[0]
         for m in range(mutations):
+            if min_num_of_rects <= 1:
+                continue
             index = random.randint(0, min_num_of_rects - 1)
             rect1 = self.images[0].rects[index]
             for i in range(len(self.images)-1):
                 self.images[i].rects[index] = self.images[i+1].rects[index]
             self.images[-1].rects[index] = rect1
+        self.images[3] = image4

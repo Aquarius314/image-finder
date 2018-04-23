@@ -25,7 +25,7 @@ def rect(x, y, width, height, color, screen):
 
 def draw_image(screen, image, scale):
         # 0 - white, 1 - black
-    pixels = image.pixels
+    pixels = np.clip(image.pixels, 0, 255)
     target_pixels = image.compared_picture
     screen.fill((255, 255, 255))    # BACKGROUND
 
@@ -36,11 +36,6 @@ def draw_image(screen, image, scale):
     for x in range(image.width):
         for y in range(image.height):
             value = int(pixels[x, y])
-            if value <= 255:
-                for i in range(scale):
-                    for j in range(scale):
-                        screen.set_at((scale*x+i, scale*y+j), (value, value, value))
-            else:
-                for i in range(scale):
-                    for j in range(scale):
-                        screen.set_at((scale*x+i, scale*y+j), (255, 255, 255))
+            for i in range(scale):
+                for j in range(scale):
+                    screen.set_at((scale*x+i, scale*y+j), (value, value, value))
