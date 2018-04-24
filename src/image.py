@@ -5,8 +5,8 @@ import pygame
 
 
 class Rect:
-    min_size = 2
-    max_size = 10
+    min_size = 3
+    max_size = 20
     min_color = -10
     max_color = 20
     initial_max_size = 20
@@ -77,7 +77,7 @@ class Image:
     image_loaded = False
     calculated_fitness = 0
     total_sum = 0
-    FILE_NAME = 'assets/smile100.png'
+    FILE_NAME = 'assets/woman400prepared.png'
 
     def __init__(self, width, height):
         self.width = width

@@ -4,9 +4,9 @@ from algorithm import Algorithm
 import time
 
 
-width = 100
-height = 100
-scale = 5
+width = 400
+height = 400
+scale = 2
 # 1:    23686, t 153719
 # 2:    24597, t 393758 <--
 # 5:    21115, t 948539
@@ -21,11 +21,10 @@ def run(screen, clock, alg):
     print("IT'S ON")
 
     displays = 0
-    capturing_frequency = 10
+    capturing_frequency = 2
     running = True
     disrupted = False
-    capturing = False
-    always_update = True
+    capturing = True
     while running and not disrupted:  # main loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -46,7 +45,7 @@ def run(screen, clock, alg):
             if capturing:
                 if displays % capturing_frequency == 1:
                     gui.display(screen, alg.get_best_image(), scale)
-                    image_file_name = "images/smile_"+str(int(displays/capturing_frequency))+".png"
+                    image_file_name = "images/"+str(int(displays/capturing_frequency))+".png"
                     pygame.image.save(screen, image_file_name)
                     print("Saved image to " + image_file_name)
             else:
