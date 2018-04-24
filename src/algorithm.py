@@ -3,16 +3,17 @@ import random
 import time
 import pygame
 import math
+import matplotlib.pyplot as plt
 
 
 class Algorithm:
 
     best_fitness = -1000000.0
-    number_of_imgs = 40
+    number_of_imgs = 10
     max_iterations = 10000
-    number_of_rects = 100
+    number_of_rects = 800
     percentage = 0.00
-    target_percentage = 98.00
+    target_percentage = 99.00
 
     last_iteration_time = time.time()
 

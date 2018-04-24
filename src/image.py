@@ -6,7 +6,7 @@ import pygame
 
 class Rect:
     min_size = 2
-    max_size = 16
+    max_size = 10
     initial_max_size = 20
 
     def __init__(self, x, y, width, height):
@@ -49,7 +49,7 @@ class Rect:
         # if self.is_oval:
         #     self.width = self.height
 
-        variation = 4
+        variation = 2
         if self.x > variation:
             lshake = variation
         if self.x + self.width < img_width - variation:
@@ -75,7 +75,7 @@ class Image:
         self.height = height
         if not self.image_loaded:
             self.image_loaded = True
-            self.image_from_disk = pygame.image.load('assets/morda.png')
+            self.image_from_disk = pygame.image.load('assets/smile-inverted.png')
             # for p in pygame.surfarray.array2d(self.image_from_disk):
             #     print(p)
         self.pixels = []
@@ -185,9 +185,10 @@ class Image:
 
     def mutate(self):
         # remove some rects
-        remove = random.randint(1, 10)
+        remove = random.randint(2, 4)
         for i in range(min(remove, len(self.rects))):
-            self.rects.remove(self.rects[-i-1])
+            random.shuffle(self.rects)
+            self.rects.remove(self.rects[0])
 
         # shake existing rects
         for rect in self.rects:
@@ -195,7 +196,7 @@ class Image:
         # random.shuffle(self.rects)
 
         # add some rects
-        add = random.randint(1, 10)
+        add = random.randint(2, 4)
         for i in range(add):
             self.rects.append(self.get_rand_rect())
         self.refresh()

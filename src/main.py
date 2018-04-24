@@ -6,14 +6,6 @@ import time
 
 width = 400
 height = 400
-# 1:    23686, t 153719
-# 2:    24597, t 393758 <--
-# 5:    21115, t 948539
-# 10:   23585, t
-# 20:   22303
-# 50:   21833
-# 100:  19640 for 880it
-# 200:  19529 for 450it
 
 
 def run(screen, clock, alg):
@@ -50,7 +42,7 @@ disr = run(_screen, _clock, algorithm)
 pygame.display.set_caption(str(algorithm.percentage) + "% with "
                            + str(algorithm.number_of_imgs) + " after " + str(algorithm.iterations) + " its")
 print("FINISHED")
-if not disr:
-    time.sleep(100000000)
+# if not disr:
+#     time.sleep(100000000)
 pygame.quit()
 
