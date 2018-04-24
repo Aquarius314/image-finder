@@ -9,24 +9,37 @@ import matplotlib.pyplot as plt
 class Algorithm:
 
     best_fitness = -1000000.0
-    number_of_imgs = 10
-    max_iterations = 10000
+    number_of_imgs = 30
+    max_iterations = 500
     number_of_rects = 800
     percentage = 0.00
-    target_percentage = 99.00
+    target_percentage = 80.00
+    total_time = 0
 
     last_iteration_time = time.time()
+
+    fitness_curve = []
 
     images = []
     # best_image = None
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, number_of_imgs):
+        self.refresh()
         # self.number_of_rects = int((width+height)/5)
         self.max_fitness = width*height
         self.start_time = time.time()
         self.init_images(width, height)
         self.best_image = self.images[0]
         self.iterations = 0
+        self.number_of_imgs = number_of_imgs
+
+    def refresh(self):
+        self.best_fitness = -1000000.0
+        self.iterations = 0
+        self.percentage = 0.00
+        self.total_time = 0
+        self.fitness_curve = []
+        self.images = []
 
     def init_images(self, width, height):
         for i in range(self.number_of_imgs):
@@ -47,7 +60,8 @@ class Algorithm:
                                        " ft" + str(self.percentage) +
                                        "% it" + str(self.iterations))
             if self.iterations >= self.max_iterations or self.percentage >= self.target_percentage:
-                print("Finished after time:", int(time.time()*1000-self.start_time*1000))
+                self.total_time = int(time.time()*1000-self.start_time*1000)
+                print("Finished after time:", str(self.total_time))
                 print("The final fitness was:", str(int(self.best_fitness)))
                 return False
             print("Time for 1 iteration: %.2f s after %.2f s, prct improvement: %.2f"

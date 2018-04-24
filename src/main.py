@@ -1,8 +1,9 @@
 import pygame
 import gui
 from algorithm import Algorithm
+import numpy as np
 import time
-
+import matplotlib.pyplot as plt
 
 width = 400
 height = 400
@@ -11,10 +12,13 @@ height = 400
 def run(screen, clock, alg):
     print("IT'S ON")
 
+    fitness_curve = []
     running = True
     disrupted = False
     while running and not disrupted:  # main loop
         running = alg.calculate()
+        # alg.calculate()
+        # alg.calculate()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 disrupted = True
@@ -29,18 +33,44 @@ def run(screen, clock, alg):
                                        "% it" + str(alg.iterations))
             gui.display_screen(screen, clock)
             gui.draw_image(alg.get_best_image(), screen)
-        alg.populate_best_images()
-        alg.crossover()
+        current_fitness = (alg.get_best_fitness()/alg.max_fitness)*100
+        fitness_curve.append(current_fitness)
+
+        continue_algorithm(alg)
+
+    # display plots
+    print(fitness_curve)
+    percentages = np.array(fitness_curve[1:])
+    label = str(alg.number_of_imgs)+", time:" + str(alg.total_time) \
+            + ", final fitness: " + str(alg.percentage)
+    plt.plot(percentages, label=label)
+    plt.xlabel("Iterations")
+    plt.ylabel("Fitness [%]")
+    plt.title("Different numbers of images")
+    # plt.show()
+
     return disrupted
+
+
+def continue_algorithm(algorithm):
+    algorithm.populate_best_images()
+    algorithm.crossover()
+
 
 pygame.init()
 
 _clock = pygame.time.Clock()
 _screen = pygame.display.set_mode((width, height))
-algorithm = Algorithm(width, height)
-disr = run(_screen, _clock, algorithm)
-pygame.display.set_caption(str(algorithm.percentage) + "% with "
-                           + str(algorithm.number_of_imgs) + " after " + str(algorithm.iterations) + " its")
+algorithm1 = Algorithm(width, height, 10)
+algorithm3 = Algorithm(width, height, 40)
+algorithm4 = Algorithm(width, height, 100)
+disr = run(_screen, _clock, algorithm1)
+disr = run(_screen, _clock, algorithm3)
+disr = run(_screen, _clock, algorithm4)
+plt.legend()
+plt.show()
+# pygame.display.set_caption(str(algorithm.percentage) + "% with "
+#                            + str(algorithm.number_of_imgs) + " after " + str(algorithm.iterations) + " its")
 print("FINISHED")
 # if not disr:
 #     time.sleep(100000000)
