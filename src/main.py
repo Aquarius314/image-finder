@@ -4,9 +4,9 @@ from algorithm import Algorithm
 import time
 
 
-width = 400
-height = 400
-scale = 2
+width = 200
+height = 200
+scale = 3
 # 1:    23686, t 153719
 # 2:    24597, t 393758 <--
 # 5:    21115, t 948539
@@ -45,7 +45,7 @@ def run(screen, clock, alg):
             if capturing:
                 if displays % capturing_frequency == 1:
                     gui.display(screen, alg.get_best_image(), scale)
-                    image_file_name = "images/"+str(int(displays/capturing_frequency))+".png"
+                    image_file_name = "images/cartoon_face_"+str(int(displays/capturing_frequency))+".png"
                     pygame.image.save(screen, image_file_name)
                     print("Saved image to " + image_file_name)
             else:

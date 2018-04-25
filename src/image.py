@@ -7,8 +7,8 @@ import pygame
 class Rect:
     min_size = 2
     max_size = 20
-    min_color = -10
-    max_color = 20
+    min_color = -20
+    max_color = 30
     initial_max_size = 20
 
     def __init__(self, x, y, width, height, color):
@@ -35,7 +35,7 @@ class Rect:
         bheight = 0
 
         # mess with the color
-        self.color += random.randint(-2, 2)
+        self.color += random.randint(-1, 1)
         self.color = max(self.min_color, self.color)
         self.color = min(self.max_color, self.color)
 
@@ -77,7 +77,7 @@ class Image:
     image_loaded = False
     calculated_fitness = 0
     total_sum = 0
-    FILE_NAME = 'assets/woman400prepared.png'
+    FILE_NAME = 'assets/cartoon_face.png'
 
     def __init__(self, width, height):
         self.width = width
