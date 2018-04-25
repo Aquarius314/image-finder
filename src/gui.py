@@ -20,7 +20,7 @@ def rect(x, y, width, height, color, screen):
     pygame.draw.rect(screen, color, pygame.Rect(x, y, width, height))
 
 
-def draw_image(image, screen):
+def draw_image(image, screen, scale):
         # 0 - white, 1 - black
     pixels = image.pixels
     target_pixels = image.compared_picture
@@ -34,4 +34,6 @@ def draw_image(image, screen):
         for y in range(image.height):
             value = int(pixels[x, y])
             if value != 0:
-                screen.set_at((x, y), (value, value, value))
+                for i in range(scale):
+                    for j in range(scale):
+                        screen.set_at((x*scale+i, y*scale+j), (value, value, value))

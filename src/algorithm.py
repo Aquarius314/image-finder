@@ -8,13 +8,17 @@ import matplotlib.pyplot as plt
 
 class Algorithm:
 
+    # best known setting:
+    # imgs = 40 mutations = 2 randomness = 10
+
     best_fitness = -1000000.0
     number_of_imgs = 30
-    max_iterations = 500
-    number_of_rects = 800
+    max_iterations = 400
+    number_of_rects = 1000
     percentage = 0.00
     target_percentage = 80.00
     total_time = 0
+    randomness = 10
 
     last_iteration_time = time.time()
 
@@ -23,7 +27,7 @@ class Algorithm:
     images = []
     # best_image = None
 
-    def __init__(self, width, height, number_of_imgs):
+    def __init__(self, width, height, imgs=40, randomness=10, mutations=5):
         self.refresh()
         # self.number_of_rects = int((width+height)/5)
         self.max_fitness = width*height
@@ -31,7 +35,9 @@ class Algorithm:
         self.init_images(width, height)
         self.best_image = self.images[0]
         self.iterations = 0
-        self.number_of_imgs = number_of_imgs
+        self.number_of_imgs = imgs
+        self.randomness = randomness
+        self.mutations = mutations
 
     def refresh(self):
         self.best_fitness = -1000000.0
@@ -73,7 +79,7 @@ class Algorithm:
 
     def shake_images(self):
         for img in self.images:
-            img.mutate()
+            img.mutate(self.randomness, self.mutations)
 
     def refresh_images(self):
         for img in self.images:
@@ -129,7 +135,7 @@ class Algorithm:
                 self.images[-i-1].overwrite_with(img)
 
         for i in range(1, len(self.images)):
-            self.images[i].mutate()
+            self.images[i].mutate(self.randomness, self.mutations)
 
     def crossover(self):
         min_num_of_rects = 100000

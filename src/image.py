@@ -6,7 +6,7 @@ import pygame
 
 class Rect:
     min_size = 2
-    max_size = 10
+    max_size = 8
     initial_max_size = 20
 
     def __init__(self, x, y, width, height):
@@ -20,8 +20,8 @@ class Rect:
         # self.color = random.randint(0, 255)
         self.color = 1
 
-    def shake_in_image(self, img_width, img_height):
-        if random.randint(1, 2) == 2:
+    def shake_in_image(self, img_width, img_height, randomness, mutations):
+        if random.randint(1, randomness) != 1:
             return
         lshake = 0  # left, right, up, down shakes
         rshake = 0
@@ -49,7 +49,7 @@ class Rect:
         # if self.is_oval:
         #     self.width = self.height
 
-        variation = 2
+        variation = mutations
         if self.x > variation:
             lshake = variation
         if self.x + self.width < img_width - variation:
@@ -183,20 +183,20 @@ class Image:
                 if self.distance(i, j, ox, oy) <= r:
                     self.pixels[i, j] = 1
 
-    def mutate(self):
+    def mutate(self, randomness, mutations):
         # remove some rects
-        remove = random.randint(2, 4)
+        remove = random.randint(int(mutations/4), int(3*mutations/4))
         for i in range(min(remove, len(self.rects))):
             random.shuffle(self.rects)
             self.rects.remove(self.rects[0])
 
         # shake existing rects
         for rect in self.rects:
-            rect.shake_in_image(self.width, self.height)
+            rect.shake_in_image(self.width, self.height, randomness, mutations)
         # random.shuffle(self.rects)
 
         # add some rects
-        add = random.randint(2, 4)
+        add = random.randint(int(mutations/4), int(3*mutations/4))
         for i in range(add):
             self.rects.append(self.get_rand_rect())
         self.refresh()

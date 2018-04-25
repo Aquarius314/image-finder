@@ -5,9 +5,9 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-width = 400
-height = 400
-
+width = 200
+height = 200
+scale = 3
 
 def run(screen, clock, alg):
     print("IT'S ON")
@@ -32,7 +32,7 @@ def run(screen, clock, alg):
                                        " ft" + str(alg.percentage) + \
                                        "% it" + str(alg.iterations))
             gui.display_screen(screen, clock)
-            gui.draw_image(alg.get_best_image(), screen)
+            gui.draw_image(alg.get_best_image(), screen, scale)
         current_fitness = (alg.get_best_fitness()/alg.max_fitness)*100
         fitness_curve.append(current_fitness)
 
@@ -41,12 +41,12 @@ def run(screen, clock, alg):
     # display plots
     print(fitness_curve)
     percentages = np.array(fitness_curve[1:])
-    label = str(alg.number_of_imgs)+", time:" + str(alg.total_time) \
-            + ", final fitness: " + str(alg.percentage)
+    label = str(alg.number_of_imgs) + ", time:" + str(alg.total_time) + \
+            ", final fitness: " + str(alg.percentage) + ", mutations: " + str(alg.mutations)
     plt.plot(percentages, label=label)
     plt.xlabel("Iterations")
     plt.ylabel("Fitness [%]")
-    plt.title("Different numbers of images")
+    plt.title("Different mutations rate")
     # plt.show()
 
     return disrupted
@@ -60,10 +60,10 @@ def continue_algorithm(algorithm):
 pygame.init()
 
 _clock = pygame.time.Clock()
-_screen = pygame.display.set_mode((width, height))
-algorithm1 = Algorithm(width, height, 10)
-algorithm3 = Algorithm(width, height, 40)
-algorithm4 = Algorithm(width, height, 100)
+_screen = pygame.display.set_mode((width*scale, height*scale))
+algorithm1 = Algorithm(width, height, imgs=40, mutations=1)
+algorithm3 = Algorithm(width, height, imgs=40, mutations=2)
+algorithm4 = Algorithm(width, height, imgs=40, mutations=4)
 disr = run(_screen, _clock, algorithm1)
 disr = run(_screen, _clock, algorithm3)
 disr = run(_screen, _clock, algorithm4)
