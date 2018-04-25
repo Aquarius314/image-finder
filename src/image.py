@@ -5,7 +5,7 @@ import pygame
 
 
 class Rect:
-    min_size = 3
+    min_size = 2
     max_size = 20
     min_color = -10
     max_color = 20
@@ -23,7 +23,7 @@ class Rect:
         # self.color = random.randint(0, 255)
 
     def modify(self, img_width, img_height):
-        if random.randint(1, 2) != 1:
+        if random.randint(1, 10) != 1:
             return
         lshake = 0  # left, right, up, down shakes
         rshake = 0
@@ -56,7 +56,7 @@ class Rect:
         # if self.is_oval:
         #     self.width = self.height
 
-        variation = 3
+        variation = 2
         if self.x > variation:
             lshake = variation
         if self.x + self.width < img_width - variation:

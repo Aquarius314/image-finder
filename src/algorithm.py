@@ -18,9 +18,9 @@ class Algorithm:
     best_fitness = -1000000000.0
     new_best_fitness = False
     current_fitness = -100000000.0
-    number_of_imgs = 200
+    number_of_imgs = 100
     max_iterations = 1000000
-    number_of_rects = 1200
+    number_of_rects = 1400
     percentage = 0.00
     target_percentage = 99.90
 
