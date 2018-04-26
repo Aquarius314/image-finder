@@ -12,13 +12,14 @@ class Algorithm:
     # imgs = 40 mutations = 2 randomness = 10
 
     best_fitness = -1000000.0
-    number_of_imgs = 30
-    max_iterations = 400
-    number_of_rects = 1000
+    number_of_imgs = 40
+    max_iterations = 200
+    number_of_rects = 500
     percentage = 0.00
-    target_percentage = 80.00
+    target_percentage = 98.00
     total_time = 0
     randomness = 10
+    mutations = 2
 
     last_iteration_time = time.time()
 
@@ -27,7 +28,7 @@ class Algorithm:
     images = []
     # best_image = None
 
-    def __init__(self, width, height, imgs=40, randomness=10, mutations=5):
+    def __init__(self, width, height, imgs=40, randomness=10, mutations=2, skip_crossover=False):
         self.refresh()
         # self.number_of_rects = int((width+height)/5)
         self.max_fitness = width*height
@@ -38,6 +39,7 @@ class Algorithm:
         self.number_of_imgs = imgs
         self.randomness = randomness
         self.mutations = mutations
+        self.skip_crossover = skip_crossover
 
     def refresh(self):
         self.best_fitness = -1000000.0
@@ -138,6 +140,8 @@ class Algorithm:
             self.images[i].mutate(self.randomness, self.mutations)
 
     def crossover(self):
+        if self.skip_crossover:
+            return
         min_num_of_rects = 100000
         for img in self.images:
             num_of_rects = len(img.rects)

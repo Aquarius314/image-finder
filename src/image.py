@@ -5,8 +5,8 @@ import pygame
 
 
 class Rect:
-    min_size = 2
-    max_size = 8
+    min_size = 4
+    max_size = 20
     initial_max_size = 20
 
     def __init__(self, x, y, width, height):

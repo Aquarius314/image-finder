@@ -42,7 +42,11 @@ def run(screen, clock, alg):
     print(fitness_curve)
     percentages = np.array(fitness_curve[1:])
     label = str(alg.number_of_imgs) + ", time:" + str(alg.total_time) + \
-            ", final fitness: " + str(alg.percentage) + ", mutations: " + str(alg.mutations)
+            ", final fitness: " + str(alg.percentage) # + ", mutations: " + str(alg.mutations)
+    if alg.skip_crossover:
+        label += ", skipping crossover"
+    else:
+        label += ", with crossover"
     plt.plot(percentages, label=label)
     plt.xlabel("Iterations")
     plt.ylabel("Fitness [%]")
@@ -61,14 +65,14 @@ pygame.init()
 
 _clock = pygame.time.Clock()
 _screen = pygame.display.set_mode((width*scale, height*scale))
-algorithm1 = Algorithm(width, height, imgs=40, mutations=1)
+# algorithm1 = Algorithm(width, height, imgs=40, mutations=1)
 algorithm3 = Algorithm(width, height, imgs=40, mutations=2)
-algorithm4 = Algorithm(width, height, imgs=40, mutations=4)
-disr = run(_screen, _clock, algorithm1)
+# algorithm4 = Algorithm(width, height, imgs=40, mutations=2, skip_crossover=True)
+# disr = run(_screen, _clock, algorithm1)
 disr = run(_screen, _clock, algorithm3)
-disr = run(_screen, _clock, algorithm4)
-plt.legend()
-plt.show()
+# disr = run(_screen, _clock, algorithm4)
+# plt.legend()
+# plt.show()
 # pygame.display.set_caption(str(algorithm.percentage) + "% with "
 #                            + str(algorithm.number_of_imgs) + " after " + str(algorithm.iterations) + " its")
 print("FINISHED")
@@ -76,3 +80,5 @@ print("FINISHED")
 #     time.sleep(100000000)
 pygame.quit()
 
+
+# martynoemailas@gmail.com
